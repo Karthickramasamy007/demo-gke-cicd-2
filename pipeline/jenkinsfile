@@ -3,7 +3,7 @@ pipeline {
   agent {
     kubernetes { // Kubernetes plugin
       cloud 'demo-gke-dev-cluster' // plugin cloud configuration name. Here is where jenkins controller and following containers are running.
-      yamlFile 'pipeline/builder.yaml'
+      yamlFile 'builder.yaml'
     }
   }
   
@@ -14,8 +14,10 @@ pipeline {
       steps {
         container('kaniko') { //name mentioned in the yaml file.
           script {
+          sh 'echo "HAI WORKING DIR"'
+          sh 'pwd'
             sh '''
-            /kaniko/executor --dockerfile `pwd`/Dockerfile \
+            /kaniko/executor --dockerfile `pwd`apps/app1/Dockerfile \
                              --context `pwd` \
                              --destination=mydockeraccfortest/myweb:${BUILD_NUMBER}
             '''
