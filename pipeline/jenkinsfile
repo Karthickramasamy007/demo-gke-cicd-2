@@ -35,13 +35,13 @@ pipeline {
             sh 'echo "checking pwd"'
             sh 'pwd'
             sh 'ls'
-            sh 'sed -i "s/<TAG>/${BUILD_NUMBER}/" /apps/app1/myweb.yaml'
+            sh 'sed -i "s/<TAG>/${BUILD_NUMBER}/" ./apps/app1/myweb.yaml'
             sh 'kubectl config view'
-            sh 'cat /apps/app1/myweb.yaml'
+            sh 'cat ./apps/app1/myweb.yaml'
             //sh 'kubectl get pods -n jenkins'
             //sh 'kubectl get pods'
             //sh 'kubectl config view'
-            sh 'kubectl apply -f /apps/app1/myweb.yaml'
+            sh 'kubectl apply -f ./apps/app1/myweb.yaml'
         }
       }
     }
