@@ -1,0 +1,63 @@
+pipeline {
+
+  agent {
+    kubernetes { // Kubernetes plugin
+      cloud 'kind_dev_cluster' // plugin cloud configuration name. Here is where jenkins controller and following containers are running.
+      yamlFile 'builder.yaml'
+    }
+  }
+  
+
+  stages {
+
+    stage('Kaniko Build & Push Image') {
+      steps {
+        container('kaniko') { //name mentioned in the yaml file.
+          script {
+            sh '''
+            /kaniko/executor --dockerfile `pwd`/Dockerfile \
+                             --context `pwd` \
+                             --destination=mydockeraccfortest/myweb:${BUILD_NUMBER}
+            '''
+            //The above command build, tag and push to private registry. Regisntry credentinals are added as secret in k8's and mounted secret
+            //volume into the Kaniko container in yaml file.
+          }
+        }
+      }
+    }
+    
+    stage('Deploy App to DEV Kubernetes Cluster') { // This deploys to the same cluster (DEV) where our jenkins pipeline is running.
+      steps {
+        container('kubectl') {  //Here we are not passing any k8's config files. Insted we use service account for rbac permissions to perform the below actions.
+            sh 'sed -i "s/<TAG>/${BUILD_NUMBER}/" myweb.yaml'
+            sh 'kubectl config view'
+            sh 'cat myweb.yaml'
+            //sh 'kubectl get pods -n jenkins'
+            //sh 'kubectl get pods'
+            //sh 'kubectl config view'
+            sh 'kubectl apply -f myweb.yaml'
+        }
+      }
+    }
+    
+    stage('Deploy App to SIT Kubernetes Clusteer') {     
+      steps {
+        container('kubectl') {
+            sh 'sed -i "s/<TAG>/${BUILD_NUMBER}/" myweb.yaml'
+            withCredentials([file(credentialsId: 'sit_kubeconfig', variable: 'KUBECONFIG')]){ //Here we pass config file for SIT cluster. So, we can deploy to SIT
+                                                                                            // cluster from here in DEV cluster.
+              sh 'kubectl config view'
+              sh 'cat myweb.yaml'
+              sh 'kubectl get pods -n jenkins'
+              sh 'kubectl get pods'
+              sh 'kubectl config view'
+              sh 'kubectl create ns jenkins'
+              sh 'kubectl apply -f myweb.yaml'
+          }
+        }
+      }
+    }
+  
+    
+  }
+}

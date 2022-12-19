@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins
+  labels:
+    app: jenkins
+spec:
+  type: LoadBalancer
+  ports:
+    - name: ui
+      port: 8080 #This port is for UI to connect to Jenkins
+      targetPort: 8080
+      protocol: TCP
+    - name: slave
+      port: 50000 #This port is for slave nodes to connect to Jenkins when staging uses different nodes
+      protocol: TCP
+    - name: http
+      port: 80 #This port is used to connect to Jenkins
+      targetPort: 8080
+  selector:
+    app: jenkins
