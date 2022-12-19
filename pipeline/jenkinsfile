@@ -2,8 +2,8 @@ pipeline {
 
   agent {
     kubernetes { // Kubernetes plugin
-      cloud 'kind_dev_cluster' // plugin cloud configuration name. Here is where jenkins controller and following containers are running.
-      yamlFile 'builder.yaml'
+      cloud 'demo-gke-dev-cluster' // plugin cloud configuration name. Here is where jenkins controller and following containers are running.
+      yamlFile 'pipeline/builder.yaml'
     }
   }
   
@@ -14,8 +14,11 @@ pipeline {
       steps {
         container('kaniko') { //name mentioned in the yaml file.
           script {
+          sh 'echo "HAI WORKING DIR"'
+          sh 'pwd'
+          sh 'ls'
             sh '''
-            /kaniko/executor --dockerfile `pwd`/Dockerfile \
+            /kaniko/executor --dockerfile `pwd`/apps/app1/Dockerfile \
                              --context `pwd` \
                              --destination=mydockeraccfortest/myweb:${BUILD_NUMBER}
             '''
@@ -31,11 +34,11 @@ pipeline {
         container('kubectl') {  //Here we are not passing any k8's config files. Insted we use service account for rbac permissions to perform the below actions.
             sh 'sed -i "s/<TAG>/${BUILD_NUMBER}/" myweb.yaml'
             sh 'kubectl config view'
-            sh 'cat myweb.yaml'
+            sh 'cat /apps/app1/myweb.yaml'
             //sh 'kubectl get pods -n jenkins'
             //sh 'kubectl get pods'
             //sh 'kubectl config view'
-            sh 'kubectl apply -f myweb.yaml'
+            sh 'kubectl apply -f /apps/app1/myweb.yaml'
         }
       }
     }
