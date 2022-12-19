@@ -40,24 +40,5 @@ pipeline {
       }
     }
     
-    stage('Deploy App to SIT Kubernetes Clusteer') {     
-      steps {
-        container('kubectl') {
-            sh 'sed -i "s/<TAG>/${BUILD_NUMBER}/" myweb.yaml'
-            withCredentials([file(credentialsId: 'sit_kubeconfig', variable: 'KUBECONFIG')]){ //Here we pass config file for SIT cluster. So, we can deploy to SIT
-                                                                                            // cluster from here in DEV cluster.
-              sh 'kubectl config view'
-              sh 'cat myweb.yaml'
-              sh 'kubectl get pods -n jenkins'
-              sh 'kubectl get pods'
-              sh 'kubectl config view'
-              sh 'kubectl create ns jenkins'
-              sh 'kubectl apply -f myweb.yaml'
-          }
-        }
-      }
-    }
-  
-    
   }
 }
