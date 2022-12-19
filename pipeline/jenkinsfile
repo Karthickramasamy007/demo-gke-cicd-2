@@ -16,8 +16,9 @@ pipeline {
           script {
           sh 'echo "HAI WORKING DIR"'
           sh 'pwd'
+          sh 'ls'
             sh '''
-            /kaniko/executor --dockerfile `pwd`apps/app1/Dockerfile \
+            /kaniko/executor --dockerfile `pwd`/apps/app1/Dockerfile \
                              --context `pwd` \
                              --destination=mydockeraccfortest/myweb:${BUILD_NUMBER}
             '''
