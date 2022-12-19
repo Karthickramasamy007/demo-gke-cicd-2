@@ -32,13 +32,24 @@ pipeline {
     stage('Deploy App to DEV Kubernetes Cluster') { // This deploys to the same cluster (DEV) where our jenkins pipeline is running.
       steps {
         container('kubectl') {  //Here we are not passing any k8's config files. Insted we use service account for rbac permissions to perform the below actions.
-            sh 'sed -i "s/<TAG>/${BUILD_NUMBER}/" myweb.yaml'
+            sh 'echo "checking pwd"'
+            sh 'pwd'
+            sh 'ls'
+            sh 'sed -i "s/<TAG>/${BUILD_NUMBER}/" ./apps/app1/myweb.yaml'
             sh 'kubectl config view'
+<<<<<<< HEAD
             sh 'cat /apps/app1/myweb.yaml'
             //sh 'kubectl get pods -n jenkins'
             //sh 'kubectl get pods'
             //sh 'kubectl config view'
             sh 'kubectl apply -f /apps/app1/myweb.yaml'
+=======
+            sh 'cat ./apps/app1/myweb.yaml'
+            //sh 'kubectl get pods -n jenkins'
+            //sh 'kubectl get pods'
+            //sh 'kubectl config view'
+            sh 'kubectl apply -f ./apps/app1/myweb.yaml'
+>>>>>>> 5af555ee7c2fc7ac3929034fd6fc524e391fd37d
         }
       }
     }
