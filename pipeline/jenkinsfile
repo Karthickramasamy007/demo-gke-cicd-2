@@ -14,9 +14,6 @@ pipeline {
       steps {
         container('kaniko') { //name mentioned in the yaml file.
           script {
-          sh 'echo "HAI WORKING DIR"'
-          sh 'pwd'
-          sh 'ls'
             sh '''
             /kaniko/executor --dockerfile `pwd`/apps/app1/Dockerfile \
                              --context `pwd` \
@@ -32,15 +29,8 @@ pipeline {
     stage('Deploy App to DEV Kubernetes Cluster') { // This deploys to the same cluster (DEV) where our jenkins pipeline is running.
       steps {
         container('kubectl') {  //Here we are not passing any k8's config files. Insted we use service account for rbac permissions to perform the below actions.
-            sh 'echo "checking pwd"'
-            sh 'pwd'
-            sh 'ls'
             sh 'sed -i "s/<TAG>/${BUILD_NUMBER}/" ./apps/app1/myweb.yaml'
-            sh 'kubectl config view'
             sh 'cat ./apps/app1/myweb.yaml'
-            //sh 'kubectl get pods -n jenkins'
-            //sh 'kubectl get pods'
-            //sh 'kubectl config view'
             sh 'kubectl apply -f ./apps/app1/myweb.yaml'
         }
       }
