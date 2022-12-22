@@ -2,7 +2,7 @@ pipeline {
 
   agent {
     kubernetes { // Kubernetes plugin
-      cloud 'demo-gke-dev-cluster' // plugin cloud configuration name. Here is where jenkins controller and following containers are running.
+      cloud 'gke-dev_cluster' // plugin cloud configuration name. Here is where jenkins controller and following containers are running.
       yamlFile 'pipeline/builder.yaml'
     }
   }
